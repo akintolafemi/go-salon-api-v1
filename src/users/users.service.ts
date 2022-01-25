@@ -32,7 +32,7 @@ export class UsersService {
         data: {
           username: createAccountRequest.username,
           password: hashPassword,
-          // token: tokenChar,
+          token: tokenChar,
           status: 'pending verification'
         }
       });
@@ -112,7 +112,9 @@ export class UsersService {
         where: {
           AND: [{ 
             username: email
-          }, ]
+          }, {
+            token: token 
+          }]
         },
         select: {
           id: true,
@@ -128,7 +130,7 @@ export class UsersService {
             id: login.id
           },
           data: {
-            // token: null,
+            token: null,
             status: 'active',
           }
         });
