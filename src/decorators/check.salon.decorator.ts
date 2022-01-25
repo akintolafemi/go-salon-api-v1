@@ -23,7 +23,7 @@ export default class CheckSalonGuard implements CanActivate {
       );
     }
 
-    if (salon.status !== "active") {
+    if (salon.status.toString() !== "active") {
       throw new HttpException(
         ResponseManager.standardResponse("fail", HttpStatus.UNAUTHORIZED, `your salon status is set to ${salon.status}`, null),
         HttpStatus.UNAUTHORIZED,
