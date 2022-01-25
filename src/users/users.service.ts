@@ -26,13 +26,13 @@ export class UsersService {
 
       const hashPassword = await bcrypt.hash(createAccountRequest.password, hashRounds);
 
-      const tokenChar:string = randomChar(100);
+      const tokenChar = randomChar();
 
       const createLogin = await this.prismaService.logins.create({
         data: {
           username: createAccountRequest.username,
           password: hashPassword,
-          token: tokenChar,
+          // token: tokenChar,
           status: 'pending verification'
         }
       });
@@ -112,9 +112,7 @@ export class UsersService {
         where: {
           AND: [{ 
             username: email
-          }, {
-            token: token 
-          }]
+          }, ]
         },
         select: {
           id: true,
@@ -130,7 +128,7 @@ export class UsersService {
             id: login.id
           },
           data: {
-            token: null,
+            // token: null,
             status: 'active',
           }
         });
