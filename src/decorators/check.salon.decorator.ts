@@ -12,23 +12,23 @@ export default class CheckSalonGuard implements CanActivate {
   constructor(private readonly prismaService: PrismaService, @Inject(REQUEST) private request: RequestWithUser) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // const salon = await this.prismaService.salons.findFirst({
-    //   where: {ownerid: this.request.user.userid}
-    // });
+    const salon = await this.prismaService.salons.findFirst({
+      where: {ownerid: this.request.user.userid}
+    });
 
-    // if (!salon) {
-    //   throw new HttpException(
-    //     ResponseManager.standardResponse("fail", HttpStatus.NOT_FOUND, `salon does not exit`, null),
-    //     HttpStatus.NOT_FOUND,
-    //   );
-    // }
+    if (!salon) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.NOT_FOUND, `salon does not exit`, null),
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
-    // if (salon.status !== "active") {
-    //   throw new HttpException(
-    //     ResponseManager.standardResponse("fail", HttpStatus.UNAUTHORIZED, `your salon status is set to ${salon.status}`, null),
-    //     HttpStatus.UNAUTHORIZED,
-    //   );
-    // }
+    if (salon.status !== "active") {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.UNAUTHORIZED, `your salon status is set to ${salon.status}`, null),
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
 
     return true;
   }
