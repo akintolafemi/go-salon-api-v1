@@ -95,7 +95,7 @@ export class AuthService {
       }
       else {
         const user = await this.prismaService.users.findUnique({
-          where: { email: username },
+          where: { userid: 1 },
           select: {
             userid: true,
             email: true,
@@ -125,7 +125,7 @@ export class AuthService {
       //     }
       //   }
       // });
-      
+
       if (valid) {
         const yourKey = randomChar();
         const hashPassword = await bcrypt.hash(yourKey, hashRounds);
