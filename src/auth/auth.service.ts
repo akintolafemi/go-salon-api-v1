@@ -125,7 +125,7 @@ export class AuthService {
       //     }
       //   }
       // });
-      
+
       if (valid) {
         const yourKey = randomChar();
         const hashPassword = await bcrypt.hash(yourKey, hashRounds);
