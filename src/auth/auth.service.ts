@@ -94,7 +94,7 @@ export class AuthService {
         valid = { id: login.users.userid, email: login.users.email };
       }
       else {
-        const user = await this.prismaService.users.findUnique({
+        const user = await this.prismaService.users.findFirst({
           where: { email: username },
           select: {
             userid: true,
