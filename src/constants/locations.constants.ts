@@ -1,0 +1,2 @@
+export const validOrderByFieldsForLocations = ["id", "salonid", "cityid", "stateid", "datecreated"];
+export const validQueryFieldsForLocations = ["id", "salonid", "cityid", "stateid", "address", "googlelocation", "states", "cities"];

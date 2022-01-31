@@ -25,3 +25,27 @@ export class CreateAccountMiddleware implements NestMiddleware {
     next();
   }
 }
+
+@Injectable()
+export class CheckEmailMiddleware implements NestMiddleware {
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async use(req: Request, res: Response, next: NextFunction) {
+    //check if email is in request
+
+    if (req.body.email) {
+      const user = await this.prismaService.users.findFirst({
+        where: { email: req.body.email }
+      });
+
+      if (user) {
+        throw new HttpException(
+          ResponseManager.standardResponse("fail", HttpStatus.BAD_REQUEST, `email is already in use by another user`, null),
+          HttpStatus.BAD_REQUEST,
+        ); 
+      }
+    }
+    
+    next();
+  }
+}

@@ -14,6 +14,7 @@ module.exports = {
           ['@constants', './src/constants/'],
           ['@decorators', './src/decorators/'],
           ['@middlewares', './src/middlewares/'],
+          ['@dtos', './src/dtos/'],
         ],
         extentions: ['.ts', 'tsx']
       }

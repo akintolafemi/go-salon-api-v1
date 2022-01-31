@@ -3,7 +3,7 @@ import { REQUEST } from "@nestjs/core";
 import RequestWithUser from "src/types/request-with-user.types";
 import { PrismaService } from "src/prisma.service";
 import { ResponseManager, standardResponse } from "@utils/response-manager.utils";
-import { createAccountDto, createSpecialistDto, confirmAccountDto } from "./dtos/users.dto";
+import { createAccountDto, confirmAccountDto, updateUserStatusDto, updateProfileDto } from "./dtos/users.dto";
 import * as bcrypt from 'bcrypt';
 import { hashRounds } from "@constants/hash.constants";
 import SendMail from "@utils/sendmail";
@@ -89,7 +89,26 @@ export class UsersService {
           lastlogin: true,
           status: true,
           islogin: true,
-          users: true
+          users: {
+            select: {
+              userid: true,
+              salonid: true,
+              accounttypeid: true,
+              firstname: true,
+              lastname: true,
+              othernames: true,
+              email: true,
+              mobile: true,
+              homeaddress: true,
+              avatar: true,
+              datecreated: true,
+              dateupdated: true,
+              datedeactivated: true,
+              deactivated: true,
+              _count: true,
+              accounttypes: true,
+            }
+          }
         }
       });
 
@@ -135,7 +154,7 @@ export class UsersService {
           }
         });
 
-        return ResponseManager.standardResponse("success", HttpStatus.OK, `account verificatio successful`, null);
+        return ResponseManager.standardResponse("success", HttpStatus.OK, `account verification successful`, null);
       }
 
     } catch (e) {
@@ -147,4 +166,74 @@ export class UsersService {
     }
   }
 
+  public async updateAccountStatus(userid: number, updateRequest: updateUserStatusDto): Promise<standardResponse> {
+    try {
+      
+      await this.prismaService.logins.update({
+        where: { id: userid },
+        data: {
+          ...updateRequest 
+        }
+      });
+
+      return ResponseManager.standardResponse("success", HttpStatus.CREATED, `account status set to '${updateRequest.status}' successfully`, null);
+    }catch (e) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.INTERNAL_SERVER_ERROR, `error occured updating status, see exception message`, null, e.toString()),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  public async deactivateAccount(userid: number): Promise<standardResponse> {
+    try {
+      
+      await this.prismaService.logins.update({
+        where: { id: userid },
+        data: {
+          status: "deactivated" 
+        }
+      });
+
+      await this.prismaService.users.update({
+        where: { userid: userid },
+        data: {
+          deactivated: 1,
+          datedeactivated: new Date()
+        }
+      })
+
+      return ResponseManager.standardResponse("success", HttpStatus.OK, `account deactivated successfully`, null);
+    }catch (e) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.INTERNAL_SERVER_ERROR, `error occured deactivating account, see exception message`, null, e.toString()),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  public async updateProfile(userid: number, updateRequest: updateProfileDto): Promise<standardResponse> {
+
+    //check if body has data
+    if (Object.keys(updateRequest).length === 0) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.BAD_REQUEST, `no data to update`, null),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      const update = await this.prismaService.users.update({
+        where: { userid: userid },
+        data: updateRequest
+      });
+      return ResponseManager.standardResponse("success", HttpStatus.OK, "Profile updated successfully", null, null);
+
+    }catch (e) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.INTERNAL_SERVER_ERROR, `error occured updating profile, see exception message`, null, e.toString()),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

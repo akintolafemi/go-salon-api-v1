@@ -42,6 +42,7 @@ export default class JwtGuard implements CanActivate {
       select: {
         id: true,
         username: true,
+        password: true,
         lastlogin: true,
         status: true,
         users: true,
@@ -56,7 +57,7 @@ export default class JwtGuard implements CanActivate {
     }
 
     //attach user to request
-    request["user"] = { ...user.users, username: user.username, lastlogin: user.lastlogin, status: user.status };
+    request["user"] = { ...user.users, username: user.username, password: user.password, lastlogin: user.lastlogin, status: user.status };
 
     return true;
   }

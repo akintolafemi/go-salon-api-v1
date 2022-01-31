@@ -2,8 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable, Scope } from "@nestjs/co
 import { REQUEST } from "@nestjs/core";
 import RequestWithUser from "src/types/request-with-user.types";
 import { PrismaService } from "src/prisma.service";
-import { salonDto } from "./dtos/salons.dto";
-import { createSpecialistDto } from "@users/dtos/users.dto";
+import { salonDto, salonupdateDto, createSpecialistDto, salonIdDto, addServicesDto, updateSpecialistDto } from "./dtos/salons.dto";
 import { ResponseManager, standardResponse } from "@utils/response-manager.utils";
 
 @Injectable({ scope: Scope.REQUEST })
@@ -44,36 +43,108 @@ export class SalonsService {
     }
   }
 
-  public async createSpecialist(createSpecialistRequest: createSpecialistDto): Promise<standardResponse> {
+  public async updateSalon(id: number, updateRequest: salonupdateDto): Promise<standardResponse> {
+
+    //check if body has data
+    if (Object.keys(updateRequest).length === 0) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.BAD_REQUEST, `no data to update`, null),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     try {
 
-      const createLogin = await this.prismaService.logins.create({
-        data: {
-          username: createSpecialistRequest.username,
-          password: 'empty',
-          status: 'pending verification'
-        }
+      const getSalon = this.request.otherData.salon;
+
+      const updated = { ...getSalon, ...updateRequest, dateupdated: new Date() };
+
+      const doUpdate = await this.prismaService.salons.update({
+        where: { id: id },
+        data: updated
       });
-      if (createLogin) {
-        const email = createSpecialistRequest.username;
-        const salondId = createSpecialistRequest.salonid ? createSpecialistRequest.salonid : this.request.user.salonid;
-        delete createSpecialistRequest["username"];
-        const createUser = await this.prismaService.users.create({
-          data: { 
-            userid: createLogin.id,
-            email: email,
-            ...createSpecialistRequest, 
-            salonid: salondId,
+
+      const final = {
+        currentData: getSalon,
+        updatedData: doUpdate
+      }
+
+      return ResponseManager.standardResponse("success", HttpStatus.CREATED, `salon details updated successfully`, final);
+    }catch (e) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.INTERNAL_SERVER_ERROR, `error occured updating salon details, see exception message`, null, e.toString()),
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  public async getSalonById(id: number): Promise<standardResponse> {
+    const result = await this.prismaService.salons.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        ownerid: true,
+        salontypeid: true,
+        name: true,
+        alias: true,
+        description: true,
+        logouri: true,
+        ratings: true,
+        officialemail: true,
+        datecreated: true,
+        dateupdated: true,
+        datedeleted: true,
+        deleted: true,
+        status: true,
+        locations: {
+          select: {
+            id: true,
+            address: true,
+            googlelocation: true,
           }
+        },
+        salonservices: {
+          select: {
+            services: {
+              select: {
+                title: true,
+                description: true,
+              }
+            }
+          }
+        },
+        salontypes: true,
+        _count: true,
+      },
+    });
+
+    if (!result) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.NOT_FOUND, `salon not found`, null),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return ResponseManager.standardResponse("success", HttpStatus.OK, `salon found`, result);
+  }
+
+  public async addServices(createReq: addServicesDto): Promise<standardResponse> {
+
+    try {
+
+      const arrServices = [];
+      createReq.serviceids.forEach(serviceid => {
+        arrServices.push({
+          serviceid: serviceid,
+          salonid: this.request.user.salonid
         });
+      });
 
-        return ResponseManager.standardResponse("success", HttpStatus.CREATED, `specialist account created`, { ...createUser, username: email, status: createLogin.status});
-      }
-      else {
-        return ResponseManager.standardResponse("fail", HttpStatus.INTERNAL_SERVER_ERROR, `unable to create specialist account`, null);
-      }
+      await this.prismaService.salonservices.createMany({
+        data: arrServices
+      });
 
+      return ResponseManager.standardResponse("success", HttpStatus.CREATED, `${arrServices.length} services added successfully`, null);
+      
     }catch (e) {
       console.log(e);
       throw new HttpException(

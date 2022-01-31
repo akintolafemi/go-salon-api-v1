@@ -3,7 +3,8 @@ export type paginatedResponse = {
   data: Array<Record<any, any>>;
   message: string;
   status: string;
-  meta: meta;
+  metaData: metaData;
+  exception: string | null;
 };
 
 export type standardResponse = {
@@ -11,12 +12,13 @@ export type standardResponse = {
   data: Record<any, any> | null;
   message: string;
   status: string;
+  exception: string | null;
 };
 
-export type meta = {
-  itemCount: number;
-  totalItems: number;
-  itemsPerPage: number;
+export type metaData = {
+  rowsReturned: number;
+  totalRows: number;
+  rowsPerPage: number;
   totalPages: number;
   currentPage: number;
 };
@@ -36,15 +38,17 @@ export class ResponseManager {
     status: string,
     code: number,
     message: string,
+    metaData: metaData,
     results: Array<Record<any, any>>,
-    meta: meta,
+    exception?: string
   ) {
     return {
       status,
       code,
       message,
+      metaData,
       data: results,
-      meta,
+      exception
     };
   }
 }

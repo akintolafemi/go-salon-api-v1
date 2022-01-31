@@ -10,10 +10,16 @@ import { ResponseManager } from '@utils/response-manager.utils';
 @Injectable({ scope: Scope.REQUEST })
 export default class CheckSalonGuard implements CanActivate {
   constructor(private readonly prismaService: PrismaService, @Inject(REQUEST) private request: RequestWithUser) {}
-
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    //check if logged is super admin, search with only id, else, search with logged in userid and id
+    const searchParam = this.request.user.accounttypeid === 5 ? 
+                      { id: Number(this.request['params']?.id) } 
+                      : 
+                      { id: Number(this.request.user.salonid), ownerid: Number(this.request.user.userid) }
+
     const salon = await this.prismaService.salons.findFirst({
-      where: {ownerid: this.request.user.userid}
+      where: { AND: [searchParam] }
     });
 
     if (!salon) {
@@ -22,7 +28,6 @@ export default class CheckSalonGuard implements CanActivate {
         HttpStatus.NOT_FOUND,
       );
     }
-
     if (salon.status.toString() !== "active") {
       throw new HttpException(
         ResponseManager.standardResponse("fail", HttpStatus.UNAUTHORIZED, `your salon status is set to ${salon.status}`, null),
@@ -30,6 +35,12 @@ export default class CheckSalonGuard implements CanActivate {
       );
     }
 
+    ///attach salon to request
+    Object.assign(request, {
+      otherData: {
+        salon: salon
+      }
+    });
     return true;
   }
 }

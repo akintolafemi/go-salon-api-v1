@@ -74,21 +74,22 @@ model cities {
 }
 
 model locations {
-  id             Int            @id @default(autoincrement())
-  salonid        Int
-  address        String         @db.Text
-  cityid         Int?
-  stateid        Int?
-  googlelocation String?        @db.VarChar(255)
-  datecreated    DateTime       @default(now()) @db.DateTime(6)
-  dateupdated    DateTime?      @db.DateTime(6)
-  datedeleted    DateTime?      @db.DateTime(6)
-  deleted        Int            @default(0)
-  cities         cities?        @relation(fields: [cityid], references: [id], map: "locations_ibfk_2")
-  salons         salons         @relation(fields: [salonid], references: [id], onDelete: Cascade, map: "locations_ibfk_1")
-  states         states?        @relation(fields: [stateid], references: [id], map: "locations_ibfk_3")
-  appointments   appointments[]
-  visits         visits[]
+  id                    Int                     @id @default(autoincrement())
+  salonid               Int
+  address               String                  @db.Text
+  cityid                Int?
+  stateid               Int?
+  googlelocation        String?                 @db.VarChar(255)
+  datecreated           DateTime                @default(now()) @db.DateTime(6)
+  dateupdated           DateTime?               @db.DateTime(6)
+  datedeleted           DateTime?               @db.DateTime(6)
+  deleted               Int                     @default(0)
+  cities                cities?                 @relation(fields: [cityid], references: [id], map: "locations_ibfk_2")
+  salons                salons                  @relation(fields: [salonid], references: [id], onDelete: Cascade, map: "locations_ibfk_1")
+  states                states?                 @relation(fields: [stateid], references: [id], map: "locations_ibfk_3")
+  appointments          appointments[]
+  salonlocationservices salonlocationservices[]
+  visits                visits[]
 
   @@index([cityid], map: "cityid")
   @@index([salonid], map: "salonid")
@@ -201,12 +202,13 @@ model salontypes {
 }
 
 model services {
-  id                 Int                  @id @default(autoincrement())
-  title              String               @db.VarChar(255)
-  description        String?              @db.Text
-  appointments       appointments[]
-  salonservices      salonservices[]
-  specialistservices specialistservices[]
+  id                    Int                     @id @default(autoincrement())
+  title                 String                  @db.VarChar(255)
+  description           String?                 @db.Text
+  appointments          appointments[]
+  salonlocationservices salonlocationservices[]
+  salonservices         salonservices[]
+  specialistservices    specialistservices[]
 }
 
 model specialistservices {
@@ -240,7 +242,7 @@ model users {
   firstname                                     String               @db.VarChar(255)
   lastname                                      String?              @db.VarChar(255)
   othernames                                    String?              @db.VarChar(255)
-  email                                         String               @db.VarChar(255)
+  email                                         String               @unique(map: "email") @db.VarChar(255)
   mobile                                        String?              @db.VarChar(255)
   homeaddress                                   String?              @db.Text
   avatar                                        String?              @db.VarChar(255)
@@ -274,4 +276,18 @@ model visits {
 
   @@index([locationid], map: "locationid")
   @@index([ownerid], map: "ownerid")
+}
+
+model salonlocationservices {
+  id          Int       @id @default(autoincrement())
+  locationid  Int
+  serviceid   Int
+  datecreated DateTime  @default(now()) @db.DateTime(6)
+  datedeleted DateTime? @db.DateTime(6)
+  deleted     Int       @default(0)
+  locations   locations @relation(fields: [locationid], references: [id], onDelete: Cascade, map: "salonlocationservices_ibfk_1")
+  services    services  @relation(fields: [serviceid], references: [id], onDelete: Cascade, map: "salonlocationservices_ibfk_2")
+
+  @@index([locationid], map: "locationid")
+  @@index([serviceid], map: "serviceid")
 }

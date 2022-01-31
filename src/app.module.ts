@@ -5,9 +5,10 @@ import { AuthModule } from '@auth/auth.module';
 import { AuthMiddleware } from '@auth/auth.middleware';
 import { PrismaService } from './prisma.service';
 import { UsersModule } from '@users/users.module';
-import { CreateAccountMiddleware } from '@users/users.register.middleware';
+import { CreateAccountMiddleware, CheckEmailMiddleware } from '@users/users.register.middleware';
 import { SalonsModule } from './salons/salons.module';
 import { LocationsModule } from './locations/locations.module';
+import { SpecialistsModule } from './specialists/specialists.module';
 
 
 @Module({
@@ -15,7 +16,8 @@ import { LocationsModule } from './locations/locations.module';
     AuthModule,
     UsersModule,
     SalonsModule,
-    LocationsModule
+    LocationsModule,
+    SpecialistsModule
   ],
   controllers: [
     AppController
@@ -33,6 +35,8 @@ export class AppModule implements NestModule {
       .apply(CreateAccountMiddleware)
       .forRoutes("api/v1/users/create")
       .apply(CreateAccountMiddleware)
-      .forRoutes("api/v1/salons/createspecialist")
+      .forRoutes("api/v1/specialists/create")
+      .apply(CheckEmailMiddleware)
+      .forRoutes("api/v1/users/:userid")
   }
 }

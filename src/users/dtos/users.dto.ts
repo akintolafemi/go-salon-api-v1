@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsOptional, IsEmail, IsString, IsMobilePhone, IsInt, MinLength, Matches, IsIn, IsNumber, IsAlphanumeric } from "class-validator";
+import { IsNotEmpty, IsOptional, IsEmail, IsString, IsMobilePhone, IsInt, MinLength, Matches, IsIn, IsNumber, IsAlphanumeric, IsUrl } from "class-validator";
 import { Transform } from "class-transformer";
+import { accountStatusTypes } from "@constants/global.constants";
 
 export class accountDto {
   @IsEmail()
@@ -45,19 +46,6 @@ export class createAccountDto extends accountDto{
   password: string;
 }
 
-export class createSpecialistDto extends accountDto{
-  @IsInt()
-  @IsNotEmpty()
-  @IsIn([2], {
-    message: "Invalid account type! Must be type of 'specialist'"
-  })
-  accounttypeid: number; 
-
-  @IsOptional()
-  @IsNumber()
-  salonid: number
-}
-
 export class confirmAccountDto {
   @IsEmail()
   @IsNotEmpty()
@@ -66,4 +54,41 @@ export class confirmAccountDto {
   @IsString()
   @IsNotEmpty()
   token: string;
+}
+
+export class updateUserStatusDto {
+  @IsNotEmpty()
+  @IsIn(accountStatusTypes)
+  @IsString()
+  status: string;
+}
+
+export class updateProfileDto {
+  @IsOptional()
+  @IsString()
+  firstname: string;
+  
+  @IsOptional()
+  @IsString()
+  lastname: string;
+
+  @IsOptional()
+  @IsString()
+  othernames: string;
+
+  @IsOptional()
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
+  @IsMobilePhone("en-NG")
+  mobile: string;
+
+  @IsOptional()
+  @IsString()
+  homeaddress: string;
+
+  @IsOptional()
+  @IsUrl()
+  avatar: string;
 }

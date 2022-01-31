@@ -2,14 +2,19 @@ import { users as UserModel } from "@prisma/client";
 
 type Login = {
   username: string;
-  lastlogin: Date;
+  password: string;
   status: string;
+  lastlogin: string;
 }
 
 type User = {
   user: UserModel;
 };
 
-type RequestWithUser = Request & User & Login;
+type OtherData = {
+  otherData: any;
+}
+
+type RequestWithUser = Request & User & Login & OtherData;
 
 export default RequestWithUser;

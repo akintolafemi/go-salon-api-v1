@@ -36,6 +36,9 @@
       "@middlewares/*": [
         "src/middlewares/*"
       ],
+      "@dtos/*": [
+        "src/dtos/*"
+      ],
     }
   }
 }

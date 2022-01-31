@@ -49,6 +49,14 @@ export class AuthMiddleware implements NestMiddleware {
       );
     }
 
+    //check user deleted
+    if (user.users.deactivated === 1) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.FORBIDDEN, `account is deactivated`, null),
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     //validate password
     const passwordsMatch = await bcrypt.compare(password, user.password);
     //throw error if passwords do not match
