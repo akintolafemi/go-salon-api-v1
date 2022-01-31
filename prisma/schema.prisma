@@ -155,6 +155,20 @@ model reviews {
   @@index([salonid], map: "salonid")
 }
 
+model salonlocationservices {
+  id          Int       @id @default(autoincrement())
+  locationid  Int
+  serviceid   Int
+  datecreated DateTime  @default(now()) @db.DateTime(6)
+  datedeleted DateTime? @db.DateTime(6)
+  deleted     Int       @default(0)
+  locations   locations @relation(fields: [locationid], references: [id], onDelete: Cascade, map: "salonlocationservices_ibfk_1")
+  services    services  @relation(fields: [serviceid], references: [id], onDelete: Cascade, map: "salonlocationservices_ibfk_2")
+
+  @@index([locationid], map: "locationid")
+  @@index([serviceid], map: "serviceid")
+}
+
 model salons {
   id                          Int             @id @default(autoincrement())
   ownerid                     Int
@@ -276,18 +290,4 @@ model visits {
 
   @@index([locationid], map: "locationid")
   @@index([ownerid], map: "ownerid")
-}
-
-model salonlocationservices {
-  id          Int       @id @default(autoincrement())
-  locationid  Int
-  serviceid   Int
-  datecreated DateTime  @default(now()) @db.DateTime(6)
-  datedeleted DateTime? @db.DateTime(6)
-  deleted     Int       @default(0)
-  locations   locations @relation(fields: [locationid], references: [id], onDelete: Cascade, map: "salonlocationservices_ibfk_1")
-  services    services  @relation(fields: [serviceid], references: [id], onDelete: Cascade, map: "salonlocationservices_ibfk_2")
-
-  @@index([locationid], map: "locationid")
-  @@index([serviceid], map: "serviceid")
 }
