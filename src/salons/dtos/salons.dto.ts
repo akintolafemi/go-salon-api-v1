@@ -45,17 +45,14 @@ export class salonupdateDto {
   
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   alias: string;
   
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   description: string;
   
   @IsOptional()
   @IsUrl()
-  @IsNotEmpty()
   logouri: string;
 
   @IsOptional()
