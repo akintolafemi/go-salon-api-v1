@@ -146,7 +146,7 @@ model reviews {
   ratings     Int       @default(3)
   datecreated DateTime  @default(now()) @db.DateTime(6)
   dateupdated DateTime? @db.DateTime(6)
-  datedeleted DateTime  @db.DateTime(6)
+  datedeleted DateTime? @db.DateTime(6)
   deleted     Int       @default(0)
   users       users?    @relation(fields: [ownerid], references: [userid], map: "reviews_ibfk_1")
   salons      salons?   @relation(fields: [salonid], references: [id], map: "reviews_ibfk_2")
@@ -177,7 +177,7 @@ model salons {
   alias                       String?         @db.VarChar(255)
   description                 String?         @db.Text
   logouri                     String?         @db.VarChar(255)
-  ratings                     Int             @default(3)
+  ratings                     Int             @default(2)
   officialemail               String?         @db.VarChar(255)
   datecreated                 DateTime        @default(now()) @db.DateTime(6)
   dateupdated                 DateTime?       @db.DateTime(6)
@@ -189,6 +189,7 @@ model salons {
   locations                   locations[]
   reviews                     reviews[]
   salonservices               salonservices[]
+  salonspecials               salonspecials[]
   users_salonsTousers_salonid users[]         @relation("salonsTousers_salonid")
 
   @@index([ownerid], map: "ownerid")
@@ -290,4 +291,20 @@ model visits {
 
   @@index([locationid], map: "locationid")
   @@index([ownerid], map: "ownerid")
+}
+
+model salonspecials {
+  id          Int      @id @default(autoincrement())
+  salonid     Int
+  special     String   @db.Text
+  description String   @db.Text
+  cost        Float
+  discount    Float    @default(0)
+  validity    Int      @default(7)
+  status      String   @default("active") @db.VarChar(255)
+  datedeleted DateTime @default(now()) @db.DateTime(6)
+  deleted     Int      @default(0)
+  salons      salons   @relation(fields: [salonid], references: [id], onDelete: Cascade, map: "salonspecials_ibfk_1")
+
+  @@index([salonid], map: "salonid")
 }

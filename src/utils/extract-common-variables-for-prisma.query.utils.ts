@@ -67,3 +67,14 @@ export const extractSelectedVariablesForPrismaQueryUtils = async (query: Record<
     deleted
   }
 }
+
+export const extractSimpleCommonVariablesForPrismaQueryUtils = async (query: Record<any, any>, request: RequestWithUser) => {
+  const paginationQuery = getCorrectObject(paginationQueryFields, query);
+  const page = paginationQuery["page"] || undefined;
+  const limit = paginationQuery["limit"] ? paginationQuery["limit"] : 20;
+
+  return {
+    page,
+    limit,
+  };
+};

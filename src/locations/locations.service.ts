@@ -3,12 +3,11 @@ import { REQUEST } from "@nestjs/core";
 import RequestWithUser from "src/types/request-with-user.types";
 import { PrismaService } from "src/prisma.service";
 import { paginatedResponse, ResponseManager, standardResponse, metaData } from "@utils/response-manager.utils";
-import { locationDto, updateLocationDto } from "./dtos/locations.dto";
+import { LocationDto, UpdateLocationDto } from "./dtos/locations.dto";
 import { LocationsQueryDto } from "./dtos/locations.query.dtos";
 import { extractCommonVariablesForPrismaQueryUtils, extractSelectedVariablesForPrismaQueryUtils } from "@utils/extract-common-variables-for-prisma.query.utils";
 import { getCorrectObject } from "@utils/get-correct-object.utils";
-import { validQueryFieldsForLocations, validOrderByFieldsForLocations } from "@constants/locations.constants";
-import { validSelectedQueryFields } from "@constants/global.constants";
+import { validQueryFieldsForLocations } from "@constants/locations.constants";
 
 @Injectable({ scope: Scope.REQUEST })
 export class LocationsService {
@@ -18,7 +17,7 @@ export class LocationsService {
     private readonly prismaService: PrismaService
   ) {}
 
-  public async createLocation(createRequest: locationDto): Promise<standardResponse> {
+  public async createLocation(createRequest: LocationDto): Promise<standardResponse> {
     try {
       const create = await this.prismaService.locations.create({
         data: {
@@ -39,7 +38,7 @@ export class LocationsService {
   public async deleteLocation(id: number): Promise<standardResponse> {
     try {
       
-      const del = await this.prismaService.locations.update({
+      await this.prismaService.locations.update({
         where: { id: id },
         data: {
           deleted: 1,
@@ -56,7 +55,7 @@ export class LocationsService {
     }
   }
 
-  public async updateLocation(id: number, updateReq: updateLocationDto): Promise<standardResponse> {
+  public async updateLocation(id: number, updateReq: UpdateLocationDto): Promise<standardResponse> {
 
     if (Object.keys(updateReq).length === 0) {
       throw new HttpException(
@@ -152,8 +151,6 @@ export class LocationsService {
     else 
       selectedQuery = { deleted: 0 };
     
-    //forsalon ? aggregateArray.unshift({ salonid: this.request.user.salonid }) : null;
-
     const totalResultsCount = await this.prismaService.locations.aggregate({
       _count: {
         id: true,
@@ -226,7 +223,7 @@ export class LocationsService {
 
     const totalRows = totalResultsCount._count.id;
     const rowsPerPage = limit || 50;
-    const metaData: metaData = {
+    const meta: metaData = {
       rowsReturned: results.length,
       totalRows,
       rowsPerPage,
@@ -234,6 +231,6 @@ export class LocationsService {
       currentPage: page || 1,
     };
 
-    return ResponseManager.paginatedResponse("success", HttpStatus.OK, "locations result", metaData, results);
+    return ResponseManager.paginatedResponse("success", HttpStatus.OK, "locations result", meta, results);
   }
 }

@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from '@auth/auth.service';
-import JwtGuard from '@auth//jwt.guard';
-import { updatePasswordDto, passwordRetrieveDto, resetPasswordDto } from './dtos/auth.dtos';
+import JwtGuard from '@auth/JwtGuard';
+import { UpdatePasswordDto, PasswordRetrieveDto, ResetPasswordDto } from './dtos/auth.dtos';
 
 @Controller("api/v1/auth")
 export class AuthController {
@@ -14,17 +14,17 @@ export class AuthController {
 
   @UseGuards(JwtGuard)
   @Post("/updatepassword")
-  public async updatePassword(@Body() updatePasswordReq: updatePasswordDto) {
+  public async updatePassword(@Body() updatePasswordReq: UpdatePasswordDto) {
     return this.authService.updatePassword(updatePasswordReq);
   }
 
   @Post("/retrivepassword")
-  public async sendPasswordRetrivalLink(@Body() passwordRetrieve: passwordRetrieveDto) {
+  public async sendPasswordRetrivalLink(@Body() passwordRetrieve: PasswordRetrieveDto) {
     return this.authService.sendPasswordRetrivalLink(passwordRetrieve);
   }
 
   @Post("/resetpassword/:yourKey")
-  public async resetPassword(@Param("yourKey") yourKey: string, @Body() resetPasswordReq: resetPasswordDto) {
+  public async resetPassword(@Param("yourKey") yourKey: string, @Body() resetPasswordReq: ResetPasswordDto) {
     return this.authService.resetPassword(yourKey, resetPasswordReq);
   }
 }

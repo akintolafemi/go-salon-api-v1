@@ -1,6 +1,6 @@
 import { IsOptional } from "class-validator";
 import { Transform } from "class-transformer";
-import GlobalQueryDto from "@dtos/global.query.dto";
+import GlobalQueryDto from "@dtos/GlobalQueryDto";
 import { 
   transformToPrismaInQueryForNumber, 
   transformToPrismaContainsQueryForString, 

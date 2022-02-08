@@ -9,6 +9,7 @@ import { CreateAccountMiddleware, CheckEmailMiddleware } from '@users/users.regi
 import { SalonsModule } from './salons/salons.module';
 import { LocationsModule } from './locations/locations.module';
 import { SpecialistsModule } from './specialists/specialists.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 
 @Module({
@@ -17,7 +18,8 @@ import { SpecialistsModule } from './specialists/specialists.module';
     UsersModule,
     SalonsModule,
     LocationsModule,
-    SpecialistsModule
+    SpecialistsModule,
+    ReviewsModule
   ],
   controllers: [
     AppController

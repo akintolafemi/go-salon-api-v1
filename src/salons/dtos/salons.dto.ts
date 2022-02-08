@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional, IsUrl, IsString, IsInt, IsEmail, IsIn, Min, IsMobilePhone, IsArray, } from "class-validator";
-import { accountDto } from "@users/dtos/users.dto";
+import { accountDto as AccountDto } from "@users/dtos/users.dto";
 
-export class salonDto {
+export class SalonDto {
   @IsInt()
   @IsNotEmpty()
   @Min(1)
@@ -32,7 +32,7 @@ export class salonDto {
   officialemail: string;
 }
 
-export class salonupdateDto {
+export class SalonupdateDto {
   @IsInt()
   @IsOptional()
   @Min(1)
@@ -60,7 +60,7 @@ export class salonupdateDto {
   officialemail: string;
 }
 
-export class createSpecialistDto extends accountDto{
+export class CreateSpecialistDto extends AccountDto{
   @IsInt()
   @IsNotEmpty()
   @IsIn([2], {
@@ -69,19 +69,19 @@ export class createSpecialistDto extends accountDto{
   accounttypeid: number; 
 }
 
-export class salonIdDto {
+export class SalonIdDto {
   @IsNotEmpty()
   @IsInt()
   id: number
 }
 
-export class addServicesDto {
+export class AddServicesDto {
   @IsArray()
   @IsNotEmpty()
   serviceids: number[];
 }
 
-export class updateSpecialistDto {
+export class UpdateSpecialistDto {
   @IsOptional()
   @IsString()
   firstname: string;

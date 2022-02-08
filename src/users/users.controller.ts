@@ -1,15 +1,14 @@
-import { Controller, Post, Get, Put, Patch, Delete, Body, UseGuards, SetMetadata, Param } from '@nestjs/common';
-import AccountTypeGuard from '@decorators/account.types.decorator';
+import { Controller, Post, Get, Patch, Delete, Body, UseGuards, SetMetadata, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { createAccountDto, confirmAccountDto, updateUserStatusDto, updateProfileDto } from './dtos/users.dto';
-import JwtGuard from '@auth/jwt.guard';
+import { CreateAccountDto, UpdateUserStatusDto, UpdateProfileDto } from './dtos/users.dto';
+import JwtGuard from '@auth/JwtGuard';
 
 @Controller("api/v1/users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post("/create")
-  public async createAccount(@Body() createRequest: createAccountDto) {
+  public async createAccount(@Body() createRequest: CreateAccountDto) {
     return this.usersService.createAccount(createRequest);
   }
 
@@ -27,7 +26,7 @@ export class UsersController {
   @SetMetadata('accounttypeids', [4, 5])
   @UseGuards(JwtGuard)
   @Patch("/updatestatus/:userid")
-  public async updateAccountStatus(@Param("userid") userid: string, @Body() updateRequest: updateUserStatusDto) {
+  public async updateAccountStatus(@Param("userid") userid: string, @Body() updateRequest: UpdateUserStatusDto) {
     return this.usersService.updateAccountStatus(Number(userid), updateRequest);
   }
 
@@ -40,7 +39,7 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Patch("/:userid")
-  public async updateProfile(@Param("userid") userid: string, @Body() updateRequest: updateProfileDto) {
+  public async updateProfile(@Param("userid") userid: string, @Body() updateRequest: UpdateProfileDto) {
     return this.usersService.updateProfile(Number(userid), updateRequest);
   }
 

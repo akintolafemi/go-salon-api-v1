@@ -2,8 +2,12 @@ import { HttpException, HttpStatus, Inject, Injectable, Scope } from "@nestjs/co
 import { REQUEST } from "@nestjs/core";
 import RequestWithUser from "src/types/request-with-user.types";
 import { PrismaService } from "src/prisma.service";
-import { salonDto, salonupdateDto, createSpecialistDto, salonIdDto, addServicesDto, updateSpecialistDto } from "./dtos/salons.dto";
-import { ResponseManager, standardResponse } from "@utils/response-manager.utils";
+import { SalonDto, SalonupdateDto, AddServicesDto } from "./dtos/salons.dto";
+import { SalonsQueryDto } from "./dtos/salons.query.dtos";
+import { paginatedResponse, ResponseManager, standardResponse, metaData } from "@utils/response-manager.utils";
+import { extractCommonVariablesForPrismaQueryUtils, extractSelectedVariablesForPrismaQueryUtils } from "@utils/extract-common-variables-for-prisma.query.utils";
+import { getCorrectObject } from "@utils/get-correct-object.utils";
+import { validQueryFieldsForSalons } from "@constants/salons.constants";
 
 @Injectable({ scope: Scope.REQUEST })
 export class SalonsService {
@@ -13,7 +17,7 @@ export class SalonsService {
     private readonly prismaService: PrismaService
   ) {}
 
-  public async createSalon(salonReg: salonDto): Promise<standardResponse> {
+  public async createSalon(salonReg: SalonDto): Promise<standardResponse> {
 
     try {
       
@@ -43,7 +47,7 @@ export class SalonsService {
     }
   }
 
-  public async updateSalon(id: number, updateRequest: salonupdateDto): Promise<standardResponse> {
+  public async updateSalon(id: number, updateRequest: SalonupdateDto): Promise<standardResponse> {
 
     //check if body has data
     if (Object.keys(updateRequest).length === 0) {
@@ -96,7 +100,21 @@ export class SalonsService {
         datedeleted: true,
         deleted: true,
         status: true,
+        users_salonsTousers_salonid: {
+          select: {
+            userid: true,
+            firstname: true,
+            lastname: true,
+            email: true,
+            mobile: true,
+            avatar: true,
+          }
+        },   //all users in salon
+        // users_salons_owneridTousers: true,   owner data
         locations: {
+          where: {
+            deleted: 0,
+          },
           select: {
             id: true,
             address: true,
@@ -104,6 +122,9 @@ export class SalonsService {
           }
         },
         salonservices: {
+          where: {
+            deleted: 0,
+          },
           select: {
             services: {
               select: {
@@ -111,6 +132,19 @@ export class SalonsService {
                 description: true,
               }
             }
+          }
+        },
+        salonspecials: {
+          where: {
+            deleted: 0,
+          },
+          select: {
+            special: true,
+            description: true,
+            cost: true,
+            discount: true,
+            status: true,
+            validity: true
           }
         },
         salontypes: true,
@@ -127,7 +161,7 @@ export class SalonsService {
     return ResponseManager.standardResponse("success", HttpStatus.OK, `salon found`, result);
   }
 
-  public async addServices(createReq: addServicesDto): Promise<standardResponse> {
+  public async addServices(createReq: AddServicesDto): Promise<standardResponse> {
 
     try {
 
@@ -154,4 +188,205 @@ export class SalonsService {
     }
   }
 
+  public async getSalonsByOwnerId(ownerid: number): Promise<standardResponse> {
+    const result = await this.prismaService.salons.findMany({
+      where: { ownerid: ownerid },
+      select: {
+        id: true,
+        salontypeid: true,
+        name: true,
+        alias: true,
+        description: true,
+        logouri: true,
+        ratings: true,
+        officialemail: true,
+        datecreated: true,
+        dateupdated: true,
+        datedeleted: true,
+        deleted: true,
+        status: true,
+        users_salonsTousers_salonid: {
+          select: {
+            userid: true,
+            firstname: true,
+            lastname: true,
+            email: true,
+            mobile: true,
+            avatar: true,
+          }
+        },   //all users in salon
+        // users_salons_owneridTousers: true,   owner data
+        locations: {
+          where: {
+            deleted: 0,
+          },
+          select: {
+            id: true,
+            address: true,
+            googlelocation: true,
+          }
+        },
+        salonservices: {
+          where: {
+            deleted: 0,
+          },
+          select: {
+            services: {
+              select: {
+                title: true,
+                description: true,
+              }
+            }
+          }
+        },
+        salonspecials: {
+          where: {
+            deleted: 0,
+          },
+          select: {
+            special: true,
+            description: true,
+            cost: true,
+            discount: true,
+            status: true,
+            validity: true
+          }
+        },
+        salontypes: true,
+        _count: true,
+      },
+    });
+
+    if (!result) {
+      throw new HttpException(
+        ResponseManager.standardResponse("fail", HttpStatus.NOT_FOUND, `salon not found for owner id ${ownerid}`, null),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return ResponseManager.standardResponse("success", HttpStatus.OK, `${result.length} salon(s) found for owner id ${ownerid}`, result);
+  }
+
+  public async getSalons(salonsQueryDto: SalonsQueryDto): Promise<paginatedResponse> {
+    const { globalQuery, orderByQuery, page, fromDate, toDate, limit } =
+      await extractCommonVariablesForPrismaQueryUtils(salonsQueryDto, this.request);
+
+    const salonsQuery = getCorrectObject(validQueryFieldsForSalons, salonsQueryDto);
+
+    var selectedQuery = null;
+    if (this.request.user.accounttypeid === 3 || this.request.user.accounttypeid === 5)
+      selectedQuery = await extractSelectedVariablesForPrismaQueryUtils(salonsQueryDto);
+    else 
+      selectedQuery = { deleted: 0 };
+    
+    //forsalon ? aggregateArray.unshift({ salonid: this.request.user.salonid }) : null;
+
+    const totalResultsCount = await this.prismaService.salons.aggregate({
+      _count: {
+        id: true,
+      },
+      where: {
+        AND: [
+          salonsQuery,
+          {
+            ratings: globalQuery["ratings"],
+            datecreated: { gte: fromDate, lt: toDate },
+          },
+          selectedQuery
+        ],
+      },
+    });
+
+    const results = await this.prismaService.salons.findMany({
+      where: {
+        AND: [
+          salonsQuery,
+          {
+            ratings: globalQuery["ratings"],
+            datecreated: { gte: fromDate, lt: toDate },
+          },
+          selectedQuery
+        ],
+      },
+      skip: (page - 1) * limit || 0,
+      take: limit || 50,
+      orderBy: orderByQuery,
+      select: {
+        id: true,
+        ownerid: true,
+        salontypeid: true,
+        name: true,
+        alias: true,
+        description: true,
+        logouri: true,
+        ratings: true,
+        officialemail: true,
+        datecreated: true,
+        dateupdated: true,
+        datedeleted: true,
+        deleted: true,
+        status: true,
+        users_salonsTousers_salonid: {
+          select: {
+            userid: true,
+            firstname: true,
+            lastname: true,
+            email: true,
+            mobile: true,
+            avatar: true,
+          }
+        },   //all users in salon
+        // users_salons_owneridTousers: true,   owner data
+        locations: {
+          where: {
+            deleted: 0,
+          },
+          select: {
+            id: true,
+            address: true,
+            googlelocation: true,
+          }
+        },
+        salonservices: {
+          where: {
+            deleted: 0,
+          },
+          select: {
+            services: {
+              select: {
+                title: true,
+                description: true,
+              }
+            }
+          }
+        },
+        salonspecials: {
+          where: {
+            deleted: 0,
+          },
+          select: {
+            special: true,
+            description: true,
+            cost: true,
+            discount: true,
+            status: true,
+            validity: true
+          }
+        },
+        salontypes: true,
+        _count: true,
+      },
+    });
+
+    const totalRows = totalResultsCount._count.id;
+    const rowsPerPage = limit || 50;
+    const meta: metaData = {
+      rowsReturned: results.length,
+      totalRows,
+      rowsPerPage,
+      totalPages: Math.ceil(totalRows / rowsPerPage),
+      currentPage: page || 1,
+    };
+
+    return ResponseManager.paginatedResponse("success", HttpStatus.OK, "salons result", meta, results);
+  }
 }

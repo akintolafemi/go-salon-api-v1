@@ -1,8 +1,8 @@
-import { IsIn, IsInt, IsOptional } from "class-validator";
+import { IsIn, IsOptional, Max, Min } from "class-validator";
 import { Transform } from "class-transformer";
 import { transformToNumber, transformToValidDate, transformToValidDateRange } from "@utils/global.transform.utils";
 import { transformToPrismaContainsQueryForString } from "@utils/prisma.query.transformer.utils";
-import PaginationQueryDto from "./pagination.query.dto";
+import PaginationQueryDto from "./PaginationQueryDto";
 
 export default class GlobalQueryDto extends PaginationQueryDto {
   @Transform(({ value }) => transformToPrismaContainsQueryForString(value, "state"))
@@ -41,4 +41,10 @@ export default class GlobalQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsIn([0, 1])
   deleted: number;
+
+  @Transform(({ value }) => transformToNumber(value, "ratings"))
+  @IsOptional()
+  @Min(1)
+  @Max(5)
+  ratings: number;
 }

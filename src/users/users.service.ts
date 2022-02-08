@@ -3,11 +3,10 @@ import { REQUEST } from "@nestjs/core";
 import RequestWithUser from "src/types/request-with-user.types";
 import { PrismaService } from "src/prisma.service";
 import { ResponseManager, standardResponse } from "@utils/response-manager.utils";
-import { createAccountDto, confirmAccountDto, updateUserStatusDto, updateProfileDto } from "./dtos/users.dto";
+import { CreateAccountDto, ConfirmAccountDto, UpdateUserStatusDto, UpdateProfileDto } from "./dtos/users.dto";
 import * as bcrypt from 'bcrypt';
 import { hashRounds } from "@constants/hash.constants";
 import SendMail from "@utils/sendmail";
-import { encryptStr } from "@utils/encrypt-decrypt-crypto";
 import { randomChar } from "@utils/random-utils";
 
 @Injectable({ scope: Scope.REQUEST })
@@ -18,7 +17,7 @@ export class UsersService {
     private readonly prismaService: PrismaService
   ) {}
 
-  public async createAccount(createAccountRequest: createAccountDto): Promise<standardResponse> {
+  public async createAccount(createAccountRequest: CreateAccountDto): Promise<standardResponse> {
 
     try {
 
@@ -59,7 +58,7 @@ export class UsersService {
   
         const onSendEmail = await SendMail(msg, 'Registeration confirmation');
 
-        let resMes = ``;
+        let resMes = null;
         if (onSendEmail)
           resMes = `account created, please check your email for confirmation link`;
         else
@@ -125,7 +124,7 @@ export class UsersService {
     }
   }
 
-  public async confirmAccount({email, token}: confirmAccountDto): Promise<standardResponse> {
+  public async confirmAccount({email, token}: ConfirmAccountDto): Promise<standardResponse> {
     try {
       const login = await this.prismaService.logins.findFirst({
         where: {
@@ -166,7 +165,7 @@ export class UsersService {
     }
   }
 
-  public async updateAccountStatus(userid: number, updateRequest: updateUserStatusDto): Promise<standardResponse> {
+  public async updateAccountStatus(userid: number, updateRequest: UpdateUserStatusDto): Promise<standardResponse> {
     try {
       
       await this.prismaService.logins.update({
@@ -212,7 +211,7 @@ export class UsersService {
     }
   }
 
-  public async updateProfile(userid: number, updateRequest: updateProfileDto): Promise<standardResponse> {
+  public async updateProfile(userid: number, updateRequest: UpdateProfileDto): Promise<standardResponse> {
 
     //check if body has data
     if (Object.keys(updateRequest).length === 0) {
@@ -223,7 +222,7 @@ export class UsersService {
     }
 
     try {
-      const update = await this.prismaService.users.update({
+      await this.prismaService.users.update({
         where: { userid: userid },
         data: updateRequest
       });

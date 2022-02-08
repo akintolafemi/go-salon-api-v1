@@ -1,11 +1,8 @@
-import { SetMetadata, HttpException, HttpStatus, Inject, Scope } from '@nestjs/common';
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Scope, Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import RequestWithUser from 'src/types/request-with-user.types';
 import { REQUEST } from "@nestjs/core";
 import { PrismaService } from 'src/prisma.service';
 import { ResponseManager } from '@utils/response-manager.utils';
-
-// export const AccountTypes = (...typeids: number[]) => SetMetadata('typeids', typeids);
 
 @Injectable({ scope: Scope.REQUEST })
 export default class CheckSalonGuard implements CanActivate {
