@@ -1,0 +1,2 @@
+export const validOrderByFieldsForSalons = ["id", "ownerid", "salontypeid", "name", "ratings", "datecreated"];
+export const validQueryFieldsForSalons = ["id", "ownerid", "salontypeid", "name", "alias", "description", "officialemail", "status"];

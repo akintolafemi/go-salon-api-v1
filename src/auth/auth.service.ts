@@ -4,7 +4,7 @@ import RequestWithUser from "../types/request-with-user.types";
 import { ResponseManager } from "@utils/response-manager.utils";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma.service";
-import { updatePasswordDto, passwordRetrieveDto, resetPasswordDto } from "./dtos/auth.dtos";
+import { UpdatePasswordDto, PasswordRetrieveDto, ResetPasswordDto } from "./dtos/auth.dtos";
 import { hashRounds } from "@constants/hash.constants";
 import * as bcrypt from 'bcrypt';
 import { randomChar } from "@utils/random-utils";
@@ -40,7 +40,7 @@ export class AuthService {
     return decodedToken;
   }
 
-  async updatePassword (updatePasswordReq: updatePasswordDto) {
+  async updatePassword (updatePasswordReq: UpdatePasswordDto) {
     try {
       const passwordsMatch = await bcrypt.compare(updatePasswordReq.current, this.request.user['password']);
 
@@ -72,7 +72,7 @@ export class AuthService {
     }
   }
 
-  async sendPasswordRetrivalLink (updatePasswordReq: passwordRetrieveDto) {
+  async sendPasswordRetrivalLink (updatePasswordReq: PasswordRetrieveDto) {
     try {
 
       const { username } = updatePasswordReq;
@@ -104,28 +104,6 @@ export class AuthService {
         valid = { id: user.userid, email: user.email };
       }
 
-      //check if username is in logins or users tables
-      // valid = await this.prismaService.logins.findFirst({
-      //   where: {
-      //     OR: [
-      //       {
-      //         username: username,
-      //         users: {
-      //           email: username
-      //         }
-      //       }
-      //     ]
-      //   },
-      //   select: {
-      //     id: true,
-      //     users: {
-      //       select: {
-      //         email: true,
-      //       }
-      //     }
-      //   }
-      // });
-
       if (valid) {
         const yourKey = randomChar();
         const hashPassword = await bcrypt.hash(yourKey, hashRounds);
@@ -146,8 +124,7 @@ export class AuthService {
           }
         };
   
-        const onSendEmail = await SendMail(msg, 'Passsword Reset Link');
-        console.log("valid", valid);
+        await SendMail(msg, 'Passsword Reset Link');
         return ResponseManager.standardResponse("success", HttpStatus.OK, "Please check your email account, if you have an account with us, a mail has been sent to you.", null, null);
       }
       else {
@@ -162,7 +139,7 @@ export class AuthService {
     }
   }
 
-  async resetPassword (yourKey: string, resetPasswordReq: resetPasswordDto) {
+  async resetPassword (yourKey: string, resetPasswordReq: ResetPasswordDto) {
     try {
 
       const login = await this.prismaService.logins.findFirst({

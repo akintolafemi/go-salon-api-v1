@@ -1,8 +1,7 @@
-import { IsNotEmpty, IsOptional, IsEmail, IsString, IsMobilePhone, IsInt, MinLength, Matches, IsIn, IsNumber, IsAlphanumeric, IsUrl } from "class-validator";
-import { Transform } from "class-transformer";
+import { IsNotEmpty, IsOptional, IsEmail, IsString, IsMobilePhone, IsInt, MinLength, IsIn, IsAlphanumeric, IsUrl } from "class-validator";
 import { accountStatusTypes } from "@constants/global.constants";
 
-export class accountDto {
+export class AccountDto {
   @IsEmail()
   @IsNotEmpty()
   username: string;
@@ -28,7 +27,7 @@ export class accountDto {
   homeaddress: string;
 }
 
-export class createAccountDto extends accountDto{
+export class CreateAccountDto extends AccountDto{
   @IsInt()
   @IsNotEmpty()
   @IsIn([1, 2, 3])
@@ -42,11 +41,10 @@ export class createAccountDto extends accountDto{
   @IsAlphanumeric("en-US", {
     message: 'Password must be alphanumeric'
   })
-  // @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {message: 'password too weak, must contact at least one letter and one number'})
   password: string;
 }
 
-export class confirmAccountDto {
+export class ConfirmAccountDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -56,14 +54,14 @@ export class confirmAccountDto {
   token: string;
 }
 
-export class updateUserStatusDto {
+export class UpdateUserStatusDto {
   @IsNotEmpty()
   @IsIn(accountStatusTypes)
   @IsString()
   status: string;
 }
 
-export class updateProfileDto {
+export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   firstname: string;

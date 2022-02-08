@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
-import { ResponseManager, standardResponse } from "./response-manager.utils";
-import isNumeric from "./is-number";
+import { ResponseManager } from "./response-manager.utils";
 
 export const transformToGoogleCoordinatesStrings = (value: string, field: string) => {
 

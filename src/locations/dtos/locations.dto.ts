@@ -2,7 +2,7 @@ import { IsNotEmpty, IsOptional, IsString, IsNumber, IsInt, } from "class-valida
 import { Transform } from "class-transformer";
 import { transformToGoogleCoordinatesStrings } from "@utils/transform-to-google-coordinates";
 
-export class locationDto {
+export class LocationDto {
   @IsString()
   @IsNotEmpty()
   address: string;
@@ -20,7 +20,7 @@ export class locationDto {
   googlelocation: string;
 }
 
-export class updateLocationDto {
+export class UpdateLocationDto {
   @IsString()
   @IsOptional()
   address: string;

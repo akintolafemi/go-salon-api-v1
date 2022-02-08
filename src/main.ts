@@ -4,7 +4,6 @@ import { ValidationPipe } from '@nestjs/common';
 
 //sentry
 import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
 
 Sentry.init({
   dsn: "https://490145ca6de940e3ac57ed7ab416e7f8@o1125597.ingest.sentry.io/6165644",

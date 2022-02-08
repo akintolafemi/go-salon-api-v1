@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsOptional, IsUrl, IsString, IsInt, IsEmail, IsIn, Min, IsMobilePhone, IsArray, } from "class-validator";
-import { accountDto } from "@users/dtos/users.dto";
+import { IsNotEmpty, IsOptional, IsString, IsInt, IsEmail, IsIn, IsMobilePhone, } from "class-validator";
+import { accountDto as AccountDto } from "@users/dtos/users.dto";
 import { specialistStatusTypes } from "@constants/specialists.constants";
 
-export class createSpecialistDto extends accountDto{
+export class CreateSpecialistDto extends AccountDto{
   @IsInt()
   @IsNotEmpty()
   @IsIn([2], {
@@ -12,7 +12,7 @@ export class createSpecialistDto extends accountDto{
 }
 
 
-export class updateSpecialistDto {
+export class UpdateSpecialistDto {
   @IsOptional()
   @IsString()
   firstname: string;
@@ -38,7 +38,7 @@ export class updateSpecialistDto {
   homeaddress: string;
 }
 
-export class updateSpecialistStatusDto {
+export class UpdateSpecialistStatusDto {
   @IsNotEmpty()
   @IsIn(specialistStatusTypes)
   @IsString()

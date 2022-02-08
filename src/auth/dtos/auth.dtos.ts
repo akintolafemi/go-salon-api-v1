@@ -1,13 +1,13 @@
-import { IsString, IsNotEmpty, MinLength, IsAlphanumeric, Matches } from "class-validator";
+import { IsString, IsNotEmpty, MinLength, IsAlphanumeric } from "class-validator";
 import { Match } from "@decorators/match.decorator";
 
-export class passwordRetrieveDto {
+export class PasswordRetrieveDto {
   @IsNotEmpty()
   @IsString()
   username: string;
 }
 
-export class resetPasswordDto {
+export class ResetPasswordDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(8, {
@@ -19,11 +19,11 @@ export class resetPasswordDto {
   // @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {message: 'password too weak, must contact at least one letter and one number'})
   password: string;
 
-  @Match(resetPasswordDto, (u) => u.password, "password")
+  @Match(ResetPasswordDto, (u) => u.password, "password")
   confirmpassword: string;
 }
 
-export class updatePasswordDto extends resetPasswordDto {
+export class UpdatePasswordDto extends ResetPasswordDto {
   @IsString()
   current: string;
 }

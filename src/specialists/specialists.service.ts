@@ -2,8 +2,9 @@ import { HttpException, HttpStatus, Inject, Injectable, Scope } from "@nestjs/co
 import { REQUEST } from "@nestjs/core";
 import RequestWithUser from "src/types/request-with-user.types";
 import { PrismaService } from "src/prisma.service";
-import { createSpecialistDto, updateSpecialistDto, updateSpecialistStatusDto } from "./dtos/specialists.dto";
+import { CreateSpecialistDto, UpdateSpecialistDto } from "./dtos/specialists.dto";
 import { ResponseManager, standardResponse } from "@utils/response-manager.utils";
+import { randomChar } from "@utils/random-utils";
 
 @Injectable({ scope: Scope.REQUEST })
 export class SpecialistsService {
@@ -12,20 +13,21 @@ export class SpecialistsService {
     private readonly prismaService: PrismaService
   ) {}
 
-  public async createSpecialist(createSpecialistRequest: createSpecialistDto): Promise<standardResponse> {
+  public async createSpecialist(createSpecialistRequest: CreateSpecialistDto): Promise<standardResponse> {
 
     try {
+
+      const tempPassword = randomChar(55);
 
       const createLogin = await this.prismaService.logins.create({
         data: {
           username: createSpecialistRequest.username,
-          password: 'empty',
+          password: tempPassword,
           status: 'pending verification'
         }
       });
       if (createLogin) {
         const email = createSpecialistRequest.username;
-        // const salondId = createSpecialistRequest.salonid ? createSpecialistRequest.salonid : this.request.user.salonid;
         delete createSpecialistRequest["username"];
         const createUser = await this.prismaService.users.create({
           data: { 
@@ -51,7 +53,7 @@ export class SpecialistsService {
     }
   }
 
-  public async updateSpecialist(updateRequest: updateSpecialistDto): Promise<standardResponse> {
+  public async updateSpecialist(updateRequest: UpdateSpecialistDto): Promise<standardResponse> {
     //check if body has data
     if (Object.keys(updateRequest).length === 0) {
       throw new HttpException(

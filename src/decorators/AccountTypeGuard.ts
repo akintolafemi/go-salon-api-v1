@@ -1,9 +1,6 @@
-import { SetMetadata, HttpException, HttpStatus } from '@nestjs/common';
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ResponseManager } from '@utils/response-manager.utils';
-
-// export const AccountTypes = (...typeids: number[]) => SetMetadata('typeids', typeids);
 
 @Injectable()
 export default class AccountTypeGuard implements CanActivate {
