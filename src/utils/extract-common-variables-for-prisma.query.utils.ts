@@ -1,7 +1,6 @@
 import { getCorrectObject } from "@utils/get-correct-object.utils";
 import { globalQueryFields, paginationQueryFields, validSelectedQueryFields } from "@constants/global.constants";
 import RequestWithUser from "../types/request-with-user.types";
-import { PrismaService } from "../prisma.service";
 import { DateTime } from "luxon";
 
 export const extractCommonVariablesForPrismaQueryUtils = async (query: Record<any, any>, request: RequestWithUser) => {
@@ -25,12 +24,17 @@ export const extractCommonVariablesForPrismaQueryUtils = async (query: Record<an
     toDaterange = new Date(query["daterange"][1]);
   }
 
+  fromDate = fromDaterange;
+  toDate = toDaterange;
+
   //check if there is datefrom in param
-  query["datefrom"] ? fromDate = query["datefrom"] : fromDate = fromDaterange;
-
+  if (query["datefrom"])
+    fromDate = query["datefrom"];
+  
   //check if there is dateto in param
-  query["dateto"] ? toDate = DateTime.fromISO(query["dateto"]).endOf("day").toISO() : toDate = toDaterange;
-
+  if (query["dateto"])
+    toDate = query["dateto"];
+  
   if (query["datecreated"]) {
     datecreated = query["datecreated"];
     var veryEndOfDay = DateTime.fromISO(datecreated).endOf("day").toISO();

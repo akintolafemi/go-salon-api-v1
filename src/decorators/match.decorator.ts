@@ -21,7 +21,8 @@ export const Match = <T>(
         },
       
         defaultMessage(args: ValidationArguments) {
-          const []: (() => any)[] = args.constraints;
+          const [constraintProperty]: (() => any)[] = args.constraints;
+          console.log(constraintProperty);
           return `${fieldName} and ${args.property} do not match`;
         },
       }
