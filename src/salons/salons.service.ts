@@ -278,8 +278,6 @@ export class SalonsService {
     else 
       selectedQuery = { deleted: 0 };
     
-    //forsalon ? aggregateArray.unshift({ salonid: this.request.user.salonid }) : null;
-
     const totalResultsCount = await this.prismaService.salons.aggregate({
       _count: {
         id: true,

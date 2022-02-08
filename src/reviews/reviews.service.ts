@@ -4,7 +4,7 @@ import { ResponseManager, standardResponse, metaData } from '@utils/response-man
 import { PrismaService } from 'src/prisma.service';
 import RequestWithUser from 'src/types/request-with-user.types';
 import GlobalQueryDto from '@dtos/GlobalQueryDto';
-import { extractCommonVariablesForPrismaQueryUtils, extractSimpleCommonVariablesForPrismaQueryUtils } from '@utils/extract-common-variables-for-prisma.query.utils';
+import { extractSimpleCommonVariablesForPrismaQueryUtils } from '@utils/extract-common-variables-for-prisma.query.utils';
 import { RequestCreateReviewDto } from './dtos/reviews.dto';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -57,7 +57,7 @@ export class ReviewsService {
 
     const totalRows = totalResultsCount._count.id;
     const rowsPerPage = limit || 50;
-    const metaData: metaData = {
+    const meta: metaData = {
       rowsReturned: results.length,
       totalRows,
       rowsPerPage,
@@ -65,7 +65,7 @@ export class ReviewsService {
       currentPage: page || 1,
     };
 
-    return ResponseManager.paginatedResponse("success", HttpStatus.OK, "reviews result", metaData, results);
+    return ResponseManager.paginatedResponse("success", HttpStatus.OK, "reviews result", meta, results);
   }
 
   public async createReview(createReview: RequestCreateReviewDto): Promise<standardResponse> {
