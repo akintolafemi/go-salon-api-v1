@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsOptional, IsUrl, IsString, IsInt, IsEmail, IsIn, Min, IsMobilePhone, IsArray, } from "class-validator";
-import { accountDto as AccountDto } from "@users/dtos/users.dto";
+import { AccountDto as AccountDto } from "@users/dtos/users.dto";
 
 export class SalonDto {
   @IsInt()
