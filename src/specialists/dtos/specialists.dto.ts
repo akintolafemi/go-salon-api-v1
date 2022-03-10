@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsOptional, IsString, IsInt, IsEmail, IsIn, IsMobilePhone, } from "class-validator";
-import { accountDto as AccountDto } from "@users/dtos/users.dto";
+import { AccountDto as AccountDto } from "@users/dtos/users.dto";
 import { specialistStatusTypes } from "@constants/specialists.constants";
 
 export class CreateSpecialistDto extends AccountDto{
